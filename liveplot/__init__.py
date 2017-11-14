@@ -1,1 +1,1 @@
-from client import LivePlotClient
+from .client import LivePlotClient

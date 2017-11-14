@@ -1,2 +1,2 @@
-from window import main
+from .window import main
 main()

@@ -20,7 +20,7 @@ it is overwritten.
 Requirements
 ------------
 - Numpy
-- [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download)
+- [PyQt5](http://www.riverbankcomputing.com/software/pyqt/download)
 - [pyqtgraph](http://www.pyqtgraph.org)
 
 pyqtgraph will be installed automatically from PyPI if not found

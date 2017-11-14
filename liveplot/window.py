@@ -3,13 +3,13 @@ import os
 import json
 import logging
 import signal
-import widgets
+from . import widgets
 import numpy as np
-from PyQt4.QtCore import QSharedMemory, QSize
-from PyQt4.QtGui import QMainWindow, QApplication, QStandardItem, QDockWidget, QStandardItemModel, QListView, QAction, \
-    QIcon
-from PyQt4.QtNetwork import QLocalServer
-from PyQt4.Qt import Qt as QtConst
+from PyQt5.QtCore import QSharedMemory, QSize
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDockWidget, QListView, QAction
+from PyQt5.QtGui import QStandardItem,QStandardItemModel, QIcon
+from PyQt5.QtNetwork import QLocalServer
+from PyQt5.Qt import Qt as QtConst
 from pyqtgraph.dockarea import DockArea
 
 logging.root.setLevel(logging.WARNING)
@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
 
 
     def close(self, sig=None, frame=None):
-        print 'closing'
+        print('closing')
         for conn in self.conns:
             conn.close()
         for shm in self.shared_mems:
@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         logging.debug('connection accepted')
         conn = self.server.nextPendingConnection()
         conn.waitForReadyRead()
-        key = str(conn.read(36))
+        key = str(conn.read(36).decode())
         memory = QSharedMemory()
         memory.setKey(key)
         memory.attach()
@@ -60,18 +60,18 @@ class MainWindow(QMainWindow):
         self.shared_mems.append(memory)
         conn.readyRead.connect(lambda: self.read_from(conn, memory))
         conn.disconnected.connect(memory.detach)
-        conn.write('ok')
+        conn.write(b'ok')
 
     # noinspection PyNoneFunctionAssignment
     def read_from(self, conn, memory):
         logging.debug('reading data')
-        self.meta = json.loads(conn.read(200))
+        self.meta = json.loads(conn.read(200).decode())
         if self.meta['arrsize'] != 0:
             memory.lock()
             ba = memory.data()[0:self.meta['arrsize']]
-            arr = np.frombuffer(buffer(ba))
+            arr = np.frombuffer(memoryview(ba))
             memory.unlock()
-            conn.write('ok')
+            conn.write(b'ok')
             arr = arr.reshape(self.meta['shape']).copy()
         else:
             arr = None
@@ -126,11 +126,11 @@ class MainWindow(QMainWindow):
 
         elif name == "*":
             if operation == 'clear':
-                map(clear, self.namelist.keys())
+                list(map(clear, list(self.namelist.keys())))
             elif operation == 'close':
-                map(close, self.namelist.keys())
+                list(map(close, list(self.namelist.keys())))
             elif operation == 'remove':
-                map(remove, self.namelist.keys())
+                list(map(remove, list(self.namelist.keys())))
             return
         else:
             if operation in ('clear', 'close', 'remove'):
@@ -266,7 +266,7 @@ class NameList(QDockWidget):
         del self.plot_dict[name]
 
     def keys(self):
-        return self.plot_dict.keys();
+        return list(self.plot_dict.keys());
 
 
 def main():

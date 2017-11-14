@@ -1,6 +1,6 @@
 import inspect
-from PyQt4.QtCore import QTimer
-from PyQt4.QtGui import QApplication, QWidget, QVBoxLayout, QSpinBox, QHBoxLayout, QLabel, QPushButton, \
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QSpinBox, QHBoxLayout, QLabel, QPushButton, \
     QPlainTextEdit, QProgressBar
 import numpy as np
 import sys
@@ -124,7 +124,7 @@ class TestWindow(QWidget):
                 self.timer.start()
             return set_iterator
 
-        for name, iter in tests.items():
+        for name, iter in list(tests.items()):
             button = QPushButton(name)
             button.clicked.connect(make_set_iterator(iter))
             button_layout.addWidget(button)
@@ -137,7 +137,7 @@ class TestWindow(QWidget):
 
     def iterate(self):
         try:
-            self.iterator.next()
+            next(self.iterator)
             self.progress_bar.setValue(self.progress_bar.value() + 1)
         except StopIteration:
             self.timer.stop()
@@ -145,7 +145,7 @@ class TestWindow(QWidget):
 
 if __name__ == "__main__":
     app = QApplication([])
-    c = LivePlotClient(size=2**20)
+    c = LivePlotClient(size=2**28)
     win = TestWindow()
     win.show()
     def clean():

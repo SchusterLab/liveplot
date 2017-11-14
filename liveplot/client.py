@@ -4,15 +4,15 @@ import uuid
 import warnings
 import numpy as np
 import logging
-from PyQt4.QtNetwork import QLocalSocket
-from PyQt4.QtCore import QCoreApplication, QSharedMemory
+from PyQt5.QtNetwork import QLocalSocket
+from PyQt5.QtCore import QCoreApplication, QSharedMemory
 
 __author__ = 'phil'
 
 logging.root.setLevel(logging.WARNING)
 
 class LivePlotClient(object):
-    def __init__(self, timeout=2000, size=2**20):
+    def __init__(self, timeout=2000, size=2**28):
         self.app = QCoreApplication.instance()
         if self.app is None:
             self.app = QCoreApplication([])
@@ -27,7 +27,7 @@ class LivePlotClient(object):
         if not self.shared_mem.create(size):
             raise Exception("Couldn't create shared memory %s" % self.shared_mem.errorString())
         logging.debug('Memory created with key %s and size %s' % (key, self.shared_mem.size()))
-        self.sock.write(key)
+        self.sock.write(key.encode())
         self.sock.waitForBytesWritten()
 
         self.is_connected = True
@@ -59,13 +59,13 @@ class LivePlotClient(object):
             raise ValueError("meta object is too large (> 200 char)")
 
         if arr is None:
-            self.sock.write(meta_bytes)
+            self.sock.write(meta_bytes.encode())
         else:
             if not self.sock.bytesAvailable():
                 self.sock.waitForReadyRead()
             self.sock.read(2)
             self.shared_mem.lock()
-            self.sock.write(meta_bytes)
+            self.sock.write(meta_bytes.encode())
             region = self.shared_mem.data()
             region[:arrsize] = arrbytes
             self.shared_mem.unlock()

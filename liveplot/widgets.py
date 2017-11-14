@@ -1,4 +1,4 @@
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 import warnings
 import pyqtgraph as pg
 import numpy as np
@@ -14,16 +14,16 @@ class CloseableDock(Dock):
     docklist = []
     def __init__(self, *args, **kwargs):
         super(CloseableDock, self).__init__(*args, **kwargs)
-        style = QtGui.QStyleFactory().create("windows")
-        close_icon = style.standardIcon(QtGui.QStyle.SP_TitleBarCloseButton)
-        close_button = QtGui.QPushButton(close_icon, "", self)
+        style = QtWidgets.QStyleFactory().create("windows")
+        close_icon = style.standardIcon(QtWidgets.QStyle.SP_TitleBarCloseButton)
+        close_button = QtWidgets.QPushButton(close_icon, "", self)
         close_button.clicked.connect(self.close)
         close_button.setGeometry(0, 0, 20, 20)
         close_button.raise_()
         self.closeClicked = close_button.clicked
 
-        max_icon = style.standardIcon(QtGui.QStyle.SP_TitleBarMaxButton)
-        max_button = QtGui.QPushButton(max_icon, "", self)
+        max_icon = style.standardIcon(QtWidgets.QStyle.SP_TitleBarMaxButton)
+        max_button = QtWidgets.QPushButton(max_icon, "", self)
         max_button.clicked.connect(self.maximize)
         max_button.setGeometry(20, 0, 20, 20)
         max_button.raise_()
@@ -77,7 +77,7 @@ class CrosshairPlotWidget(pg.PlotWidget):
                     xdata, ydata = data_item.xData, data_item.yData
                     index_distance = lambda i: (xdata[i]-view_x)**2 + (ydata[i] - view_y)**2
                     if self.parametric:
-                        index = min(range(len(xdata)), key=index_distance)
+                        index = min(list(range(len(xdata))), key=index_distance)
                     else:
                         index = min(np.searchsorted(xdata, view_x), len(xdata)-1)
                         if index and xdata[index] - view_x > view_x - xdata[index - 1]:
@@ -163,19 +163,19 @@ class CrossSectionDock(CloseableDock):
         self.search_mode = False
         self.signals_connected = False
         self.set_histogram(False)
-        histogram_action = QtGui.QAction('Histogram', self)
+        histogram_action = QtWidgets.QAction('Histogram', self)
         histogram_action.setCheckable(True)
         histogram_action.triggered.connect(self.set_histogram)
         self.img_view.scene.contextMenu.append(histogram_action)
 
-        self.autolevels_action = QtGui.QAction('Autoscale Levels', self)
+        self.autolevels_action = QtWidgets.QAction('Autoscale Levels', self)
         self.autolevels_action.setCheckable(True)
         self.autolevels_action.setChecked(True)
         self.autolevels_action.triggered.connect(self.redraw)
         self.ui.histogram.item.sigLevelChangeFinished.connect(lambda: self.autolevels_action.setChecked(False))
         self.img_view.scene.contextMenu.append(self.autolevels_action)
 
-        self.clear_action = QtGui.QAction('Clear Contents', self)
+        self.clear_action = QtWidgets.QAction('Clear Contents', self)
         self.clear_action.triggered.connect(self.clear)
         self.img_view.scene.contextMenu.append(self.clear_action)
 
@@ -200,7 +200,7 @@ class CrossSectionDock(CloseableDock):
         self.v_cross_section_widget_data = self.v_cross_section_widget.plot([0,0])
 
     def setLabels(self, xlabel="X", ylabel="Y", zlabel="Z"):
-        print self.h_cross_dock.label
+        print(self.h_cross_dock.label)
         self.plot_item.setLabels(bottom=(xlabel,), left=(ylabel,))
         self.h_cross_section_widget.plotItem.setLabels(bottom=xlabel, left=zlabel)
         self.v_cross_section_widget.plotItem.setLabels(bottom=ylabel, left=zlabel)
@@ -341,8 +341,8 @@ class MoviePlotDock(CrossSectionDock):
         super(MoviePlotDock, self).__init__(*args, **kwargs)
         self.setImage(array)
         self.tpts = len(array)
-        play_button = QtGui.QPushButton("Play")
-        stop_button = QtGui.QPushButton("Stop")
+        play_button = QtWidgets.QPushButton("Play")
+        stop_button = QtWidgets.QPushButton("Stop")
         stop_button.hide()
         self.addWidget(play_button)
         self.addWidget(stop_button)
